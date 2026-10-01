@@ -1,0 +1,96 @@
+name: ADR採番の衝突検査
+
+# ADRの通し番号が、main上・および他の未マージPR上の番号とぶつかっていないかを検査する
+# （meta/adr/0052）。govlint（L0）はワーキングツリーしか見られないため、他ブランチの採番を
+# 知りようがない——この検査はGitHub APIで他のオープンPRの差分を読むことで、その死角だけを埋める。
+#
+# govlint.yml に同居させないのは2つの理由による:
+#   1. govlintは「ネットワーク不使用・ROOT配下の実ファイルのみ」を性格として保っている（meta/adr/0014）
+#   2. meta/tools/** は施錠されており（meta/adr/0046）、変更に人間の開錠コミットを要する。
+#      採番の突き合わせは「何を正しいと判定するか」を左右しないため、その手続に載せる理由がない
+#
+# 検出できないもの: PRを開いていないブランチが握っている番号。GitHub Actionsは対象PRのイベントで
+# しか走らないため原理的に見えない。だからこそ meta/adr/0026 決定4 手順2（番号を取ったら即PR化）が
+# この検査の前提条件になる（meta/adr/0052 決定3）。
+
+on:
+  pull_request:
+    branches: [main, "project/**"]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  adr-number:
+    name: "ADR採番の衝突検査"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 同一ツリー内の重複と、他のオープンPRとの衝突を検査
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess, sys
+          from pathlib import Path
+
+          ADR = re.compile(r"(?P<dir>(?:.*/)?adr)/(?P<num>\d{4})-[^/]*\.md$")
+          repo, pr = os.environ["REPO"], os.environ["PR_NUMBER"]
+          errors = []
+
+          def gh(*args):
+              # encoding を明示する。locale任せにすると非UTF-8環境で標準出力の取り込みが黙って
+              # 失敗し、「他のPRは1本も無い」と誤って読める（Windowsで実測）
+              out = subprocess.run(["gh", *args], capture_output=True, text=True,
+                                   encoding="utf-8", errors="replace")
+              if out.returncode != 0:
+                  print(f"gh {' '.join(args)} が失敗: {out.stderr.strip()}", file=sys.stderr)
+                  sys.exit(1)
+              return json.loads(out.stdout)  # 空なら例外で落とす（黙って空扱いにしない）
+
+          # 1. このPRのツリー内で、同じディレクトリの同じ番号が2つ以上ないか
+          #    （mainに既にある番号を取った場合がここで落ちる）
+          seen: dict[tuple[str, str], list[str]] = {}
+          for path in Path(".").rglob("*.md"):
+              m = ADR.search(path.as_posix())
+              if m and not path.as_posix().startswith(".claude/worktrees/"):
+                  seen.setdefault((m["dir"], m["num"]), []).append(path.as_posix())
+          for (adr_dir, num), paths in sorted(seen.items()):
+              if len(paths) > 1:
+                  errors.append(f"{adr_dir} で番号 {num} が重複している: {' / '.join(sorted(paths))}")
+
+          # 2. このPRが新たに主張する番号が、他のオープンPRの主張とぶつかっていないか
+          def claimed_by(pr_number):
+              files = gh("api", f"repos/{repo}/pulls/{pr_number}/files", "--paginate",
+                         "--jq", '[.[] | select(.status == "added" or .status == "renamed") | .filename]')
+              out = {}
+              for name in files:
+                  m = ADR.search(name)
+                  if m:
+                      out[(m["dir"], m["num"])] = name
+              return out
+
+          mine = claimed_by(pr)
+          if mine:
+              others = gh("pr", "list", "--state", "open", "--json", "number,title,headRefName")
+              for other in others:
+                  if str(other["number"]) == str(pr):
+                      continue
+                  for key, name in claimed_by(other["number"]).items():
+                      if key in mine:
+                          errors.append(
+                              f"{key[0]} の番号 {key[1]} を PR #{other['number']}"
+                              f"（{other['headRefName']}）が先に使っている: {name}"
+                          )
+
+          if errors:
+              print("ADR採番の衝突を検出した（meta/adr/0026 決定4・meta/adr/0052）:")
+              for e in errors:
+                  print(f"  - {e}")
+              print("\n空いている番号へ振り直すこと。確認手順は meta/guardrails.md §2 を参照。")
+              sys.exit(1)
+          print("ADR採番の衝突なし" + (f"（このPRが主張する番号: {sorted(n for _, n in mine)}）" if mine else "（このPRはADRを追加しない）"))
+          PY

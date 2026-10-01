@@ -1,0 +1,40 @@
+# OS が生成するもの
+.DS_Store
+Thumbs.db
+# Windows の予約デバイス名。リダイレクトの誤記(`> NUL`)で実ファイルが生まれる
+NUL
+
+# エディタ
+.idea/
+.vscode/
+*.swp
+
+# Claude Code のローカル設定（権限付与が各自の環境依存で溜まる。共有するのは
+# settings.json のみ）
+.claude/settings.local.json
+__pycache__/
+
+# 機密の実ファイル（meta/adr/0040）。`.claude/settings.json` の deny は「AIが読む」ことを
+# 止めるだけで、「gitに入る」ことは何も止めない——機密保護としてはこちらが本命である。
+# 共有するテンプレートは `.env*` の名前空間の外（`env.example`）に置くため、除外は要らない。
+.env
+.env.*
+*.pem
+*.key
+secrets/
+credentials.json
+*credentials*.json
+
+# friction収穫の位置（meta/adr/0049）。各自の環境の走査済み位置であり共有しない
+.claude/harvest-state.json
+
+# セッションログの正規化インデックス（meta/adr/0049）。既定の出力先は作業ツリーの外
+# （`~/.claude/session-index/`）だが、`--db` でリポジトリ内を指した場合の保険として残す。
+# DBはログ本文をそのまま含む——閲覧したページ由来のメールアドレスや開発用の資格情報が写り込む
+*.db
+.claude/session-index.db
+
+# ローカルで画面を確かめるためだけの設定とDB。リポジトリに入れない。
+# orchestrator が同じスライスで2回コミットに混入させたため、機械で止める（2026-08-29）。
+projects/*/src/*/settings_localdemo.py
+projects/*/localdemo.sqlite3

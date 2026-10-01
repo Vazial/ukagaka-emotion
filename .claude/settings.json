@@ -1,0 +1,65 @@
+{
+  "permissions": {
+    "ask": [
+      "Edit(./meta/tools/**)",
+      "Write(./meta/tools/**)",
+      "Edit(./**/build.gradle*)",
+      "Write(./**/build.gradle*)"
+    ],
+    "deny": [
+      "Read(./**/.env*)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/id_rsa*)",
+      "Read(./**/id_ed25519*)",
+      "Read(./**/secrets/**)",
+      "Read(./**/credentials.json)",
+      "Read(./**/*credentials*.json)",
+      "Edit(./**/.env*)",
+      "Edit(./**/*.pem)",
+      "Edit(./**/*.key)",
+      "Edit(./**/id_rsa*)",
+      "Edit(./**/id_ed25519*)",
+      "Edit(./**/secrets/**)",
+      "Edit(./**/credentials.json)",
+      "Edit(./**/*credentials*.json)",
+      "Write(./**/.env*)",
+      "Write(./**/*.pem)",
+      "Write(./**/*.key)",
+      "Write(./**/id_rsa*)",
+      "Write(./**/id_ed25519*)",
+      "Write(./**/secrets/**)",
+      "Write(./**/credentials.json)",
+      "Write(./**/*credentials*.json)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
+      "Bash(git push upstream main*)",
+      "Bash(git push upstream master*)",
+      "Bash(git reset --hard*)",
+      "Bash(git branch -D*)",
+      "Bash(git branch --delete --force*)",
+      "Bash(git tag -d*)",
+      "Bash(git tag --delete*)",
+      "Bash(git clean -f*)",
+      "Bash(git clean -fd*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(gh pr create*)",
+            "command": "python \"$CLAUDE_PROJECT_DIR/meta/loop/harvest_friction.py\" --hook",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

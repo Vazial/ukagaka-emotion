@@ -1,0 +1,29 @@
+name: L0 govlint
+
+# 統治文書(ADR・friction-log・契約)の機械検証(meta/adr/0012)。
+# A層の検証でありプロジェクト実装スタックに依存しない、リポジトリ横断の共有ゲート。
+# meta/adr/0026 決定1.1: どのPRでも走るべき横断検証のため paths フィルタを付けない
+# (ある1プロジェクトの変更が別プロジェクトの統治文書との整合を壊しうる)。
+# 新プロジェクトが増えても、このファイルは編集しない(全プロジェクト共通の常時必須チェック)。
+
+on:
+  pull_request:
+    branches: [main, "project/**"]
+  push:
+    branches: [main, "project/**"]
+
+jobs:
+  govlint:
+    name: "L0: 統治文書の整合(govlint)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: govlint自身の単体テスト(検証ツールもテストで担保。meta/adr/0014)
+        run: python -m unittest meta.tools.test_govlint
+      - name: ADR・friction-log・契約IDの整合を検証
+        run: python meta/tools/govlint.py
+      - name: commission_design_api.pyの単体テスト(ネットワーク不使用。meta/adr/0014・0020)
+        run: python -m unittest meta.tools.test_commission_design_api

@@ -1,0 +1,18 @@
+#!/bin/sh
+# Conventional Commits を強制するcommit-msg hook(meta/guardrails.md 1節)。
+# 有効化: git config core.hooksPath .githooks
+# スタック非依存(POSIX sh + grep のみ)。npm等の導入後はcommitlintへの置き換えを検討する。
+
+commit_msg_file="$1"
+first_line=$(head -n1 "$commit_msg_file")
+
+pattern='^(feat|fix|refactor|test|docs|chore)(\([a-z0-9_-]+\))?: .+'
+
+if ! echo "$first_line" | grep -Eq "$pattern"; then
+  echo "commit-msg: Conventional Commits形式ではありません。" >&2
+  echo "  期待する形式: <feat|fix|refactor|test|docs|chore>(scope省略可): 概要" >&2
+  echo "  実際の1行目 : $first_line" >&2
+  exit 1
+fi
+
+exit 0
