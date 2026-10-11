@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from dsl import EMOTIONS, EmotionCli, EmotionDataset
+from dsl import EmotionCli, EmotionDataset
 
 
 @pytest.fixture
@@ -18,7 +18,8 @@ def cli() -> EmotionCli:
 
 @pytest.fixture
 def dataset(tmp_path: Path) -> EmotionDataset:
-    return EmotionDataset.complete(tmp_path / "data")
+    shared = Path(__file__).resolve().parents[1] / "data"
+    return EmotionDataset.from_shared(shared, tmp_path / "data")
 
 
 def test_UKE_A_01_classified_emotion_has_a_reply(cli: EmotionCli, dataset: EmotionDataset) -> None:
@@ -54,14 +55,13 @@ def test_UKE_C_01_same_text_has_same_classification(cli: EmotionCli, dataset: Em
 
 
 def test_UKE_D_01_accuracy_is_reported(cli: EmotionCli, dataset: EmotionDataset, tmp_path: Path) -> None:
-    records = [{"text": f"評価用の{emotion}の文", "emotion": emotion} for emotion in EMOTIONS]
+    records = dataset.evaluation
     evaluation = dataset.write_evaluation(tmp_path / "evaluation.jsonl", records)
     cli.assert_evaluation_accuracy(cli.evaluate(evaluation, dataset.root), records, dataset.root)
 
 
 def test_UKE_D_02_average_response_time_is_reported(cli: EmotionCli, dataset: EmotionDataset, tmp_path: Path) -> None:
-    records = [{"text": "評価用の喜びの文", "emotion": "喜び"}]
-    evaluation = dataset.write_evaluation(tmp_path / "evaluation.jsonl", records)
+    evaluation = dataset.write_evaluation(tmp_path / "evaluation.jsonl", dataset.evaluation)
     cli.assert_response_time_reported(cli.evaluate(evaluation, dataset.root))
 
 
@@ -69,7 +69,7 @@ def test_UKE_D_03_same_sample_count_is_reported(cli: EmotionCli, dataset: Emotio
     records = [
         {"text": dataset.samples["喜び"][0], "emotion": "喜び"},
         {"text": dataset.samples["怒り"][0], "emotion": "怒り"},
-        {"text": "見本とは別の評価文", "emotion": "どれでもない"},
+        *dataset.evaluation,
     ]
     evaluation = dataset.write_evaluation(tmp_path / "evaluation.jsonl", records)
     cli.assert_identical_sample_count(cli.evaluate(evaluation, dataset.root), 2)
@@ -86,5 +86,5 @@ def test_UKE_E_01_evaluate_cannot_start_when_anger_has_no_reply(
     cli: EmotionCli, dataset: EmotionDataset, tmp_path: Path
 ) -> None:
     missing = dataset.without_lines("怒り")
-    evaluation = missing.write_evaluation(tmp_path / "evaluation.jsonl", [{"text": "入力文", "emotion": "喜び"}])
+    evaluation = missing.write_evaluation(tmp_path / "evaluation.jsonl", missing.evaluation[:1])
     cli.assert_missing_lines_prevent_start(cli.evaluate(evaluation, missing.root), "怒り")

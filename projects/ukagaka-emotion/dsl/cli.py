@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,22 +30,34 @@ class CliResult:
 class EmotionDataset:
     """Creates only the files exposed by the CLI's ``--data`` boundary."""
 
-    def __init__(self, root: Path, lines: dict[str, list[str]], samples: dict[str, list[str]]):
+    def __init__(
+        self,
+        root: Path,
+        lines: dict[str, list[str]],
+        samples: dict[str, list[str]],
+        evaluation: list[dict[str, str]],
+    ):
         self.root = root
         self.lines = lines
         self.samples = samples
+        self.evaluation = evaluation
 
     @classmethod
-    def complete(cls, root: Path) -> "EmotionDataset":
-        lines = {emotion: [f"{emotion}の仮台詞"] for emotion in EMOTIONS}
-        samples = {emotion: [f"{emotion}だと分かる見本文"] for emotion in EMOTIONS}
-        dataset = cls(root, lines, samples)
-        dataset.write()
+    def from_shared(cls, source: Path, root: Path) -> "EmotionDataset":
+        shutil.copytree(source, root)
+        lines = json.loads((root / "lines.json").read_text(encoding="utf-8"))
+        samples = json.loads((root / "samples.json").read_text(encoding="utf-8"))
+        evaluation = [
+            json.loads(line)
+            for line in (root / "evaluation.jsonl").read_text(encoding="utf-8").splitlines()
+            if line
+        ]
+        dataset = cls(root, lines, samples, evaluation)
         return dataset
 
     def without_lines(self, emotion: str) -> "EmotionDataset":
         lines = {key: value for key, value in self.lines.items() if key != emotion}
-        dataset = EmotionDataset(self.root, lines, self.samples)
+        dataset = EmotionDataset(self.root, lines, self.samples, self.evaluation)
         dataset.write()
         return dataset
 
