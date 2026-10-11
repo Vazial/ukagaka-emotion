@@ -7,7 +7,7 @@ import sys
 import time
 from pathlib import Path
 
-from .core import EXAMPLES, LABELS, REPLIES, classify, choose_reply, validate_data
+from .core import LABELS, classify, choose_reply, validate_data
 from .embeddings import DEFAULT_MODEL, SentenceTransformerEmbedder
 
 
@@ -29,7 +29,7 @@ def _load_json(path: Path) -> object:
 
 def _load_data(path: Path | None) -> tuple[dict[str, tuple[str, ...]], dict[str, tuple[str, ...]]]:
     if path is None:
-        return dict(REPLIES), dict(EXAMPLES)
+        path = Path(__file__).resolve().parents[1] / "data"
     lines = _load_json(path / "lines.json")
     samples = _load_json(path / "samples.json")
     if not isinstance(lines, dict) or not isinstance(samples, dict):

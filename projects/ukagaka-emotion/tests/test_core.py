@@ -1,30 +1,43 @@
 import random
+import json
+from pathlib import Path
 
 import pytest
 
-from ukagaka_emotion.core import EXAMPLES, LABELS, REPLIES, classify, choose_reply, validate_data
+from ukagaka_emotion.core import LABELS, classify, choose_reply, validate_data
 from ukagaka_emotion.embeddings import CharacterEmbedder, HybridEmbedder, NgramEmbedder
+
+
+DATA = Path(__file__).parents[1] / "data"
+
+
+def load_data(name):
+    return json.loads((DATA / name).read_text(encoding="utf-8"))
+
+
+EXAMPLES = load_data("samples.json")
+REPLIES = load_data("lines.json")
 
 
 @pytest.mark.parametrize("embedder", [CharacterEmbedder(), NgramEmbedder(), HybridEmbedder()])
 def test_typical_sentences_are_classified(embedder):
-    assert classify("今日は本当に嬉しい、最高の一日だった", embedder) == "喜び"
-    assert classify("約束を破られて、もう我慢できない", embedder) == "怒り"
-    assert classify("大切な人と会えなくなって、寂しい", embedder) == "悲しみ"
-    assert classify("机の上にペンが置いてある", embedder) == "どれでもない"
+    assert classify("新しい仕事が決まって胸が弾んでいる", embedder, EXAMPLES) == "喜び"
+    assert classify("何度も邪魔をされてとうとう我慢できなくなった", embedder, EXAMPLES) == "怒り"
+    assert classify("遠くへ引っ越す友人を思うと寂しい", embedder, EXAMPLES) == "悲しみ"
+    assert classify("朝、窓を開けると風でカーテンが揺れた", embedder, EXAMPLES) == "どれでもない"
 
 
 def test_empty_input_is_neutral_and_every_label_has_reply():
     embedder = HybridEmbedder()
-    assert classify("", embedder) == "どれでもない"
+    assert classify("", embedder, EXAMPLES) == "どれでもない"
     assert set(REPLIES) == set(LABELS)
-    assert all(choose_reply(label, rng=random.Random(1)) for label in LABELS)
+    assert all(choose_reply(label, REPLIES, rng=random.Random(1)) for label in LABELS)
 
 
 def test_same_input_is_deterministic():
     embedder = HybridEmbedder()
-    assert classify("今日は本当に嬉しい、最高の一日だった", embedder) == classify(
-        "今日は本当に嬉しい、最高の一日だった", embedder
+    assert classify("新しい仕事が決まって胸が弾んでいる", embedder, EXAMPLES) == classify(
+        "新しい仕事が決まって胸が弾んでいる", embedder, EXAMPLES
     )
 
 
