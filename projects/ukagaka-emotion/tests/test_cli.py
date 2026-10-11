@@ -22,12 +22,12 @@ def test_classify_prints_label_and_reply():
 
 def test_evaluate_prints_overall_each_label_and_latency(tmp_path):
     dataset = tmp_path / "evaluation.json"
-    dataset.write_text(json.dumps([
-        {"text": "今日は本当に嬉しい、最高の一日だった", "label": "喜び"},
-        {"text": "机の上にペンが置いてある", "label": "どれでもない"},
-    ], ensure_ascii=False), encoding="utf-8")
+    dataset.write_text("\n".join([
+        json.dumps({"text": "新しい企画がうまくいって嬉しい", "emotion": "喜び"}, ensure_ascii=False),
+        json.dumps({"text": "机の上にペンが置いてある", "emotion": "どれでもない"}, ensure_ascii=False),
+    ]), encoding="utf-8")
     result = run_cli("evaluate", str(dataset))
     assert result.returncode == 0
-    assert "全体の正解率:" in result.stdout
-    assert all(f"{label}の正解率:" in result.stdout for label in ("喜び", "信頼", "恐れ", "驚き", "悲しみ", "嫌悪", "怒り", "期待", "どれでもない"))
-    assert "1件あたりの応答時間:" in result.stdout
+    assert "全体正解率:" in result.stdout
+    assert all(f"分類別正解率 {label}:" in result.stdout for label in ("喜び", "信頼", "恐れ", "驚き", "悲しみ", "嫌悪", "怒り", "期待", "どれでもない"))
+    assert "応答時間(1件あたり):" in result.stdout

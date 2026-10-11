@@ -42,6 +42,8 @@ def validate_data(examples: Mapping[str, Sequence[str]], replies: Mapping[str, S
 
 def classify(text: str, embedder: Embedder, examples: Mapping[str, Sequence[str]] = EXAMPLES) -> str:
     """Return exactly one label for every input, including empty input."""
+    if not text:
+        return "どれでもない"
     vector = embedder.embed(text)
     if not vector:
         return "どれでもない"

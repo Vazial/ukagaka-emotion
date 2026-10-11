@@ -1,13 +1,10 @@
-"""Small, dependency-free Japanese-capable embedding implementations.
-
-The feature extractors deliberately use Unicode characters rather than an
-English-only tokenizer.  This keeps the first-stage model local, small, and
-replaceable behind the :class:`Embedder` protocol.
-"""
+"""Embedding implementations used by the replaceable classification boundary."""
 
 from collections.abc import Iterable
 import math
 import unicodedata
+
+DEFAULT_MODEL = "cl-nagoya/ruri-v3-30m"
 
 
 class Embedder:
@@ -17,6 +14,28 @@ class Embedder:
 
     def embed(self, text: str) -> dict[str, float]:
         raise NotImplementedError
+
+
+class SentenceTransformerEmbedder(Embedder):
+    """Load one locally cached sentence-transformers model and encode text."""
+
+    def __init__(self, model: str = DEFAULT_MODEL):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as error:
+            raise RuntimeError("sentence-transformers が必要です") from error
+        try:
+            self._model = SentenceTransformer(model, local_files_only=True, device="cpu")
+        except Exception as error:
+            raise RuntimeError(f"埋め込みモデルをローカルから読み込めません: {model}") from error
+        self.name = model
+        self._cache: dict[str, dict[str, float]] = {}
+
+    def embed(self, text: str) -> dict[str, float]:
+        if text not in self._cache:
+            vector = self._model.encode(text, convert_to_numpy=True, normalize_embeddings=True)
+            self._cache[text] = {str(index): float(value) for index, value in enumerate(vector)}
+        return self._cache[text]
 
 
 def _normalized(text: str) -> str:
