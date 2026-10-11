@@ -67,6 +67,25 @@ def _load_dataset(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def _evaluate(
+    rows: list[dict[str, str]],
+    embedder: SentenceTransformerEmbedder,
+    samples: dict[str, tuple[str, ...]],
+    lines: dict[str, tuple[str, ...]],
+    clock=None,
+) -> tuple[list[tuple[dict[str, str], str, str]], float]:
+    """Evaluate rows, excluding one-time sample vectorization from latency."""
+    for values in samples.values():
+        for sample in values:
+            embedder.embed(sample)
+
+    measure_clock = time.perf_counter if clock is None else clock
+    started = measure_clock()
+    results = [(row, classify(row["text"], embedder, samples)) for row in rows]
+    results = [(row, label, choose_reply(label, lines)) for row, label in results]
+    return results, measure_clock() - started
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
@@ -83,10 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"台詞: {choose_reply(label, lines)}")
             return 0
         rows = _load_dataset(args.dataset)
-        started = time.perf_counter()
-        results = [(row, classify(row["text"], embedder, samples)) for row in rows]
-        results = [(row, label, choose_reply(label, lines)) for row, label in results]
-        elapsed = time.perf_counter() - started
+        results, elapsed = _evaluate(rows, embedder, samples, lines)
         correct = sum(predicted == row["label"] for row, predicted, _ in results)
         print(f"評価件数: {len(rows)}")
         print(f"全体正解率: {correct}/{len(rows)} ({correct / len(rows):.4f})")
