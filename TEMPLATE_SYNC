@@ -1,7 +1,7 @@
 # テンプレの共有ファイルの写しの記録（meta/adr/0067 決定3）。手で書き換えず scripts/template-pull.sh で更新する。
 # commit: 写した元のテンプレのコミット。paths: 同期の対象。files: 対象ファイルの内容ハッシュ（CRLF を LF に揃えた sha256）
 source: https://github.com/Vazial/ai-driven-dev-template
-commit: d18ee1dd41effe1b0912f734923a8b15b90441f6
+commit: 89b029358ad5107c0e9e7c50580657e6a8762e29
 paths:
   meta
   .claude/agents
@@ -128,7 +128,7 @@ f3313c1b9c8076c7908be003c52cb6beb4cb9c6613c340f602bfca94811b911a  meta/loop/fric
 17b2ee2cb7cd7e7775cdf36b15f47d5ef3ed837d05e2bbaa81fabfb090903ad3  meta/loop/test_friction_trend.py
 215900ffc7a44146b68e223f83db6d6154f063c0fccdd98654a0dea98683b801  meta/loop/test_harvest_friction.py
 11b7e0bc51acb095712bcf2784644c5b8554a6f49de6447782a718a21a156468  meta/loop/test_index_sessions.py
-1916cd8c9580b488a8edcf045bb70b57234e1828c7b8925fd9a89fddf1c96c80  meta/orchestration.md
+181696b1e69fa678afa0e318b0ed8da1f106715ebc99b40b8d1df6b1034b513b  meta/orchestration.md
 ab70028788693c604d1fbc6b6a28f8d47e06661c8aa515221f13622ea25c879c  meta/permissions.md
 2e1be9732ce462628cebb385dcb0f880708dad6fe2ec3f0fc1135cb74ccf6e53  meta/scenario-id-prefixes.md
 24c946a93867efcb7e275d871d4b3f8608d374073bf6a04c78bd0dbab834027c  meta/template-sync.sh
