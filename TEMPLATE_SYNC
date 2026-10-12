@@ -1,7 +1,7 @@
 # テンプレの共有ファイルの写しの記録（meta/adr/0067 決定3）。手で書き換えず scripts/template-pull.sh で更新する。
 # commit: 写した元のテンプレのコミット。paths: 同期の対象。files: 対象ファイルの内容ハッシュ（CRLF を LF に揃えた sha256）
 source: https://github.com/Vazial/ai-driven-dev-template
-commit: 89b029358ad5107c0e9e7c50580657e6a8762e29
+commit: d52ec245a5de3d0da4472e70b101e84d025a1f7d
 paths:
   meta
   .claude/agents
@@ -114,11 +114,12 @@ f948825f830b9b3f6c3d9bcfcf13d8ad659f9fd14f3f3c2b84d2c81e89f90b5e  meta/adr/0070-
 5cb99f0d3e173939320e96f551b22b2bad13f5dd98f0f3d9c3b6735c685a24b2  meta/adr/0074-sync-orca-board-to-linear.md
 d08b1c3633f183ee601250b39ace8bc8bc306054dab79a97980fec79e9e8121d  meta/adr/0075-narrow-human-agreement-to-five-documents.md
 95e329a42ab154bb3d407ea1291690c2287e51777edbf32a9fd947b0899788fe  meta/adr/0076-report-the-linear-ticket-not-the-pr.md
+807b2186515ca694f6c220d12713abeb59d8f9ac52d9916c38b3bf43ba74723d  meta/adr/0077-child-tickets-run-under-the-parent.md
 03f132a4173efc774d2416fccbea1af49831b31bf70746ba57f5e740e585ce35  meta/agent-runtime-mapping.md
 523bf2fcf718830fa2782036e49fbdcc14234ac1dd43c83731b18b8c0d21a155  meta/agents.md
 ffc7c67b700b80c8884eea6b6538e435fd927302e7deddf121b69bbd8d3694ac  meta/architecture-selection.md
 09c01718a0352c190819b363f363f04254aa7d129f07d49b26c622a2bee7afa5  meta/derived-repos-check.sh
-c94ab870c19ec3e4d9ce69a81c3bd5d907ddd0c2ef73c9f3c424f9375a1483f1  meta/derived-repos.md
+395a3a4911c4c299928bc8d33ac11dc93e88d542b369c27976489df789df7905  meta/derived-repos.md
 176c80413406951581f16cd0f7f9b26af22cc6f7efc536682e521ee022535e2e  meta/friction-log.md
 0ad5310428b6a33038ded98a0eb52f21501a96f9c527694c6837be45ee5bcfd5  meta/guardrails.md
 342425673b3b8cefd6d818f30e64bb25ba5009c5e0d70e6490580fa4ec5070df  meta/loop/README.md
@@ -128,9 +129,9 @@ f3313c1b9c8076c7908be003c52cb6beb4cb9c6613c340f602bfca94811b911a  meta/loop/fric
 17b2ee2cb7cd7e7775cdf36b15f47d5ef3ed837d05e2bbaa81fabfb090903ad3  meta/loop/test_friction_trend.py
 215900ffc7a44146b68e223f83db6d6154f063c0fccdd98654a0dea98683b801  meta/loop/test_harvest_friction.py
 11b7e0bc51acb095712bcf2784644c5b8554a6f49de6447782a718a21a156468  meta/loop/test_index_sessions.py
-181696b1e69fa678afa0e318b0ed8da1f106715ebc99b40b8d1df6b1034b513b  meta/orchestration.md
+7b2f9b0035d994d2bf561ad5dbb81e4cd661673377454cc025e14dc8f39619dd  meta/orchestration.md
 ab70028788693c604d1fbc6b6a28f8d47e06661c8aa515221f13622ea25c879c  meta/permissions.md
-2e1be9732ce462628cebb385dcb0f880708dad6fe2ec3f0fc1135cb74ccf6e53  meta/scenario-id-prefixes.md
+5e547f3d1bb683d4f02a7215d9387d554d22387ce4510b90b3459f48f6955c9e  meta/scenario-id-prefixes.md
 24c946a93867efcb7e275d871d4b3f8608d374073bf6a04c78bd0dbab834027c  meta/template-sync.sh
 7bc091e2a5c4daf87752686b78b927a8bba2df350052a9ec9b11f8de390e7809  meta/templates/acceptance-scenario.feature
 b4ac3e309d763230ebf90dae932ec816db7d5d7dd6b485a62a6ca5e9f19f4fac  meta/templates/active-context.md

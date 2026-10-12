@@ -14,6 +14,7 @@
 | `TWR` | `projects/toyama-weekend-radar` | 2026-07-29 | 富山市近郊の週末イベント提案。`TWR-W`(週末イベント一覧)等 |
 | `TDR` | `projects/dining-radar` | 2026-07-29 | 月例ランチ会向けの飲食店候補提案。検索基点はサーバの非公開設定にあり、地域はリポジトリに置かない（`projects/dining-radar/product-brief.md` §4、同 `adr/0002`）。`TDR-L`(ランチ候補提案)等。**2026-08-20にプロジェクトを `toyama-dining-radar` から `dining-radar` へ改名した**（`projects/dining-radar/adr/0026`）。プレフィックス `TDR` は既に承認済み契約のシナリオIDとして広範に使われているため据え置き、以後は特定の地名を復号しない不透明なトークンとして扱う |
 | `CSR` | `projects/connpass-session-radar` | 2026-08-15 | connpassの条件に合うイベントを毎朝ダイジェストで通知する。**画面を持たない**。ハイフン後のサブレターは契約の起票時に決める。**登録当初の「Connpassの興味深いセッションを見つける画面。`CSR-B`(セッション閲覧)」から2026-08-16に書き換えた**——人間の判断でスコープを画面から通知へ改めたためであり、プレフィックス `CSR` 自体とプロジェクト名は変更していない |
+| `UKE` | `ukagaka-emotion`（別リポジトリ `Vazial/ukagaka-emotion`） | 2026-10-11 | 伺か向け感情分類の試作（KEN-38）。`UKE-A`(台詞を返す)/`UKE-B`(分類)/`UKE-C`(再現性)/`UKE-D`(測定)/`UKE-E`(台詞の欠落)等 |
 
 ## 新規プロジェクトがプレフィックスを予約する手順
 

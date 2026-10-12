@@ -7,6 +7,7 @@
 | リポジトリ | 方式 | 状態 | 備考 |
 |---|---|---|---|
 | dining-radar | 写し（`TEMPLATE_SYNC`） | 稼働 | 履歴ごと切り出した製品（meta/adr/0067） |
+| ukagaka-emotion | 写し（`TEMPLATE_SYNC`） | 稼働 | 伺か向け感情分類の試作（KEN-38）。公開 |
 | world-parameter-games | 枝を積む（`meta/upstream-import.sh`） | 稼働 | |
 | supplement-stack | 枝を積む（`meta/upstream-import.sh`） | 稼働 | |
 | ai-driven-dev-template-private | - | 対象外 | 2026-07-18で更新停止のテンプレ本体旧版。未マージのRSV-A試作はテンプレ本体へ取り込み済み（PR #9）。2026-09-27アーカイブ |
